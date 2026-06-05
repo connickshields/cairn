@@ -7,6 +7,8 @@ export interface EditableInstruction {
   direction: Direction | "";
   text: string;
   gpsRaw: string;
+  flagged: boolean;
+  note: string;
 }
 
 export interface EditableSegment {
@@ -32,6 +34,7 @@ export interface RouteState {
   removePage: (id: string) => void;
   movePage: (from: number, to: number) => void;
   addSegment: () => void;
+  appendSegments: (segments: EditableSegment[]) => void;
   updateSegmentName: (segId: string, name: string) => void;
   removeSegment: (segId: string) => void;
   moveSegment: (from: number, to: number) => void;
@@ -44,7 +47,7 @@ export interface RouteState {
 const uid = () => crypto.randomUUID();
 
 function emptyRow(): EditableInstruction {
-  return { id: uid(), fwdMile: "", direction: "", text: "", gpsRaw: "" };
+  return { id: uid(), fwdMile: "", direction: "", text: "", gpsRaw: "", flagged: false, note: "" };
 }
 
 function move<T>(arr: T[], from: number, to: number): T[] {
@@ -69,6 +72,7 @@ export const useRouteStore = create<RouteState>((set) => ({
 
   addSegment: () =>
     set((s) => ({ segments: [...s.segments, { id: uid(), name: "", instructions: [emptyRow()] }] })),
+  appendSegments: (segments) => set((s) => ({ segments: [...s.segments, ...segments] })),
   updateSegmentName: (segId, name) =>
     set((s) => ({ segments: s.segments.map((seg) => (seg.id === segId ? { ...seg, name } : seg)) })),
   removeSegment: (segId) => set((s) => ({ segments: s.segments.filter((seg) => seg.id !== segId) })),

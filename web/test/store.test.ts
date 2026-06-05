@@ -70,4 +70,28 @@ describe("routeStore", () => {
     st.setView("review");
     expect(useRouteStore.getState().view).toBe("review");
   });
+
+  it("appends extracted segments", () => {
+    const st = useRouteStore.getState();
+    st.appendSegments([
+      {
+        id: "seg-x",
+        name: "Spur",
+        instructions: [
+          { id: "r1", fwdMile: "1.8", direction: "BL", text: "Bear left.", gpsRaw: "N38°28.33' W120°12.45'", flagged: true, note: "smudged" },
+        ],
+      },
+    ]);
+    const seg = useRouteStore.getState().segments[0];
+    expect(seg.name).toBe("Spur");
+    expect(seg.instructions[0].flagged).toBe(true);
+    expect(seg.instructions[0].note).toBe("smudged");
+  });
+
+  it("gives manually-added rows default flagged/note", () => {
+    useRouteStore.getState().addSegment();
+    const row = useRouteStore.getState().segments[0].instructions[0];
+    expect(row.flagged).toBe(false);
+    expect(row.note).toBe("");
+  });
 });

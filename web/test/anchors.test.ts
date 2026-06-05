@@ -26,10 +26,10 @@ describe("deriveAnchors", () => {
       id: "s1",
       name: "Main",
       instructions: [
-        { id: "a", fwdMile: "0.0", direction: "", text: "start", gpsRaw: "" },
-        { id: "b", fwdMile: "1.8", direction: "BL", text: "anchor1", gpsRaw: "N38°28.33' W120°12.45'" },
-        { id: "c", fwdMile: "2.8", direction: "SO", text: "bad", gpsRaw: "garbage" },
-        { id: "d", fwdMile: "3.0", direction: "SO", text: "anchor2", gpsRaw: "N38°28.49' W120°13.26'" },
+        { id: "a", fwdMile: "0.0", direction: "", text: "start", gpsRaw: "", flagged: false, note: "" },
+        { id: "b", fwdMile: "1.8", direction: "BL", text: "anchor1", gpsRaw: "N38°28.33' W120°12.45'", flagged: false, note: "" },
+        { id: "c", fwdMile: "2.8", direction: "SO", text: "bad", gpsRaw: "garbage", flagged: false, note: "" },
+        { id: "d", fwdMile: "3.0", direction: "SO", text: "anchor2", gpsRaw: "N38°28.49' W120°13.26'", flagged: false, note: "" },
       ],
     },
   ];
