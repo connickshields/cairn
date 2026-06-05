@@ -102,12 +102,16 @@ describe("ExtractedPage schema", () => {
 - [ ] **Step 3: Write `packages/shared/src/extract.ts`**
 
 ```ts
-import { z } from "zod";
-import { Direction } from "./types";
+// zod/v4 (not the v3 the rest of @cairn/shared uses) so this schema can be passed directly
+// to the Anthropic SDK's zodOutputFormat, which requires v4. Transform-free, so v4 is trivial
+// here. Direction codes are inlined (a v4 object can't embed the v3 `Direction` enum).
+import { z } from "zod/v4";
+
+export const ExtractedDirection = z.enum(["SO", "BL", "BR", "TL", "TR", "UT"]);
 
 export const ExtractedInstruction = z.object({
   fwdMile: z.number().nullable(),
-  direction: Direction.nullable(),
+  direction: ExtractedDirection.nullable(),
   text: z.string(),
   gpsRaw: z.string().nullable(),
   lowConfidence: z.boolean(),
@@ -267,7 +271,7 @@ export async function extractPage(opts: {
     model: "claude-opus-4-8",
     max_tokens: 8000,
     thinking: { type: "adaptive" },
-    output_config: { effort: "high", format: zodOutputFormat(ExtractedPage, "extracted_page") },
+    output_config: { effort: "high", format: zodOutputFormat(ExtractedPage) },
     system: EXTRACTION_SYSTEM,
     messages: [
       {
