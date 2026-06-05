@@ -780,7 +780,7 @@ describe("toRoutePayload", () => {
         {
           name: "Spur",
           instructions: [
-            { fwdMile: null, direction: null, text: "Continue north.", gps: null },
+            { fwdMile: 0, direction: null, text: "Continue north.", gps: null },
             { fwdMile: 1.8, direction: "BL", text: "Bear left.", gps: { raw: "N38°28.33' W120°12.45'" } },
           ],
         },
