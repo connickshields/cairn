@@ -137,7 +137,13 @@ before any extraction, frontend, or routing work begins.
 ## Forward-looking notes (not Phase 1 work)
 
 - **Phase 3 (extraction):** Claude vision via a `fetch` from the Worker — fits cleanly.
-- **Phase 4 (routing):** self-hosted Valhalla does NOT run on Workers; it becomes an
-  external service the Worker calls, or a hosted routing API. Routing stays pluggable
-  behind an interface with a straight-line default, so Phase 1–3 are unaffected.
+- **Phase 4 (routing):** road-snapping stays on-platform rather than using self-hosted
+  Valhalla. Our problem is tiny per request (one trail, small bounding box, low volume),
+  so we don't need a full routing engine: at request time, fetch the road network for the
+  anchors' bounding box from the **Overpass API** (JSON), build a small in-memory graph,
+  and run **map-matching (HMM/Viterbi) + shortest-path** in pure TypeScript. "Favor
+  unpaved tracks" becomes edge weights; the book's turn codes can disambiguate forks.
+  Cache each bbox's roads in **R2 or D1** to avoid hammering Overpass (D1 with a bbox
+  index is the "no runtime Overpass dependency" upgrade). Routing stays pluggable behind
+  an interface with a straight-line default, so Phase 1–3 are unaffected.
 - Cloudflare deployment shape: Worker (`api/`) + Pages/Assets for the SPA (`web/`).
