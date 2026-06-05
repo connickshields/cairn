@@ -5,6 +5,9 @@ node_modules/
 dist/
 .wrangler/
 
+# Local Worker secrets
+.dev.vars
+
 # Visual brainstorming companion scratch files
 .superpowers/
 

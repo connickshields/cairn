@@ -9,6 +9,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.0",
     "@cairn/shared": "*",
     "hono": "^4.6.0"
   },
