@@ -1,8 +1,14 @@
 import { Hono } from "hono";
+import Anthropic from "@anthropic-ai/sdk";
 import { Route } from "@cairn/shared";
 import { buildGpx } from "./gpx";
+import { ALLOWED_MEDIA, arrayBufferToBase64, extractPage, type MediaType } from "./extract";
 
-const app = new Hono();
+interface Env {
+  ANTHROPIC_API_KEY: string;
+}
+
+const app = new Hono<{ Bindings: Env }>();
 
 app.get("/", (c) => c.text("cairn api"));
 
@@ -23,6 +29,25 @@ app.post("/api/gpx", async (c) => {
       "Content-Disposition": 'attachment; filename="route.gpx"',
     },
   });
+});
+
+app.post("/api/extract", async (c) => {
+  const contentType = c.req.header("content-type") ?? "";
+  const mediaType = ALLOWED_MEDIA.find((m) => contentType.startsWith(m)) as MediaType | undefined;
+  if (!mediaType) {
+    return c.json({ error: "Body must be an image (jpeg, png, webp, or gif)" }, 400);
+  }
+  const buf = await c.req.arrayBuffer();
+  if (buf.byteLength === 0) {
+    return c.json({ error: "Empty image body" }, 400);
+  }
+  const client = new Anthropic({ apiKey: c.env.ANTHROPIC_API_KEY });
+  try {
+    const page = await extractPage({ client, imageBase64: arrayBufferToBase64(buf), mediaType });
+    return c.json(page, 200);
+  } catch (err) {
+    return c.json({ error: "Extraction failed", detail: (err as Error).message }, 502);
+  }
 });
 
 export default app;
