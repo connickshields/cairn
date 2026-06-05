@@ -1,0 +1,5 @@
+{
+  "name": "cairn",
+  "private": true,
+  "workspaces": ["packages/*", "api", "web"]
+}
