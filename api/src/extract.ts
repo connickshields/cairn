@@ -1,7 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
-import { type ExtractedPage as ExtractedPageT } from "@cairn/shared";
-import { z } from "zod/v4";
+import { ExtractedPage, type ExtractedPage as ExtractedPageT } from "@cairn/shared";
 
 export const ALLOWED_MEDIA = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
 export type MediaType = (typeof ALLOWED_MEDIA)[number];
@@ -19,28 +18,6 @@ export const EXTRACTION_SYSTEM = [
   "Transcribe descriptions verbatim. Do not invent rows or coordinates.",
 ].join("\n");
 
-// Zod v4 schema used for structured-output JSON schema generation and API-response parsing.
-// Mirrors @cairn/shared ExtractedPage; defined with zod/v4 because zodOutputFormat requires it.
-const DirectionV4 = z.enum(["SO", "BL", "BR", "TL", "TR", "UT"]);
-
-const ExtractedInstructionV4 = z.object({
-  fwdMile: z.number().nullable(),
-  direction: DirectionV4.nullable(),
-  text: z.string(),
-  gpsRaw: z.string().nullable(),
-  lowConfidence: z.boolean(),
-  note: z.string().nullable(),
-});
-
-const ExtractedSegmentV4 = z.object({
-  name: z.string(),
-  instructions: z.array(ExtractedInstructionV4),
-});
-
-const ExtractedPageV4 = z.object({
-  segments: z.array(ExtractedSegmentV4),
-});
-
 export function arrayBufferToBase64(buf: ArrayBuffer): string {
   const bytes = new Uint8Array(buf);
   let binary = "";
@@ -57,7 +34,7 @@ export async function extractPage(opts: {
     model: "claude-opus-4-8",
     max_tokens: 8000,
     thinking: { type: "adaptive" },
-    output_config: { effort: "high", format: zodOutputFormat(ExtractedPageV4) },
+    output_config: { effort: "high", format: zodOutputFormat(ExtractedPage) },
     system: EXTRACTION_SYSTEM,
     messages: [
       {
