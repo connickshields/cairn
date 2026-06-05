@@ -1,4 +1,4 @@
-import type { Instruction, Route, RouteSegment } from "./types";
+import type { Instruction, Route, RouteSegment } from "@cairn/shared";
 
 export function buildGpx(route: Route): string {
   const waypoints = route.segments

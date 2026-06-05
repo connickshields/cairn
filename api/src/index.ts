@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { Route } from "./types";
+import { Route } from "@cairn/shared";
 import { buildGpx } from "./gpx";
 
 const app = new Hono();

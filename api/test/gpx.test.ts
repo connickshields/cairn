@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { XMLParser, XMLValidator } from "fast-xml-parser";
 import { buildGpx } from "../src/gpx";
-import type { Route } from "../src/types";
+import type { Route } from "@cairn/shared";
 
 const route: Route = {
   name: "Test Trail",
