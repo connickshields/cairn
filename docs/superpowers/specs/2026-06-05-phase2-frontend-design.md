@@ -44,7 +44,8 @@ the parser/types the API validates with and the ones the frontend uses.
 ## Stack
 
 React + Vite + TypeScript · Tailwind · react-leaflet (OSM tiles) · TanStack Query (GPX
-POST) · Zustand (edit store) · dnd-kit (reordering). Lives in `web/`.
+POST) · Zustand (edit store). Reordering is via ▲/▼ buttons wired to store actions
+(drag-and-drop deferred). Lives in `web/`.
 
 ## Views & flow
 
@@ -69,7 +70,8 @@ Wide editable **Table** on the left (always-primary work surface); a right panel
 - GPS cell parses the raw string live via the shared parser → shows `lat, lon`. GPS-bearing
   rows are **highlighted** (they are the track anchors). Unparseable → red, no plotted
   point (never fabricate a coordinate).
-- Drag handles reorder rows (within/across segments) and segments.
+- Reorder rows (within a segment) and segments via ▲/▼ controls. Cross-segment row moves
+  are out of scope for Phase 2 (delete + re-add); drag-and-drop is a later polish.
 
 **Map tab** (react-leaflet, OSM tiles):
 - Per segment: a polyline through that segment's GPS anchors in `fwdMile` order
