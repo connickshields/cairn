@@ -1,0 +1,22 @@
+{
+  "name": "cairn-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.6.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "fast-xml-parser": "^5.7.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.0.0",
+    "wrangler": "^4.0.0"
+  }
+}
