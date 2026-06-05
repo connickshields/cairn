@@ -70,10 +70,9 @@ GpsFix {
   lon: number
 }
 
-Instruction {            // one table row
-  fwdMile: number | null // cumulative forward mileage; the route-ordering key
-  revMile: number | null // cumulative reverse mileage
-  direction: Direction | null
+Instruction {            // one table row, forward (black) view only
+  fwdMile: number | null // per-segment cumulative forward mileage; route-ordering key
+  direction: Direction | null  // null when the row has no turn code (e.g. "Continue...")
   text: string           // verbatim description
   gps: GpsFix | null
 }
@@ -90,8 +89,18 @@ Route {
 ```
 
 We keep each fix's `raw` string *and* decimal `lat`/`lon` so later phases can re-validate
-without re-parsing. Deliberately NOT in Phase 1 (YAGNI): no `confidence` field (Phase 3
+without re-parsing. **Input shape:** the endpoint accepts a GPS fix as just `{ raw }`; a
+zod transform runs the coordinate parser to fill `lat`/`lon` (malformed raw → 400). This
+makes the parser load-bearing in the Phase 1 flow and keeps hand-written JSON minimal. Deliberately NOT in Phase 1 (YAGNI): no `confidence` field (Phase 3
 extraction concern), no notable-feature flag.
+
+**Source-data note (verified against `example_page.png`):** each book row actually encodes
+two instructions — a **forward** (black) view and a **reverse** (blue) view — with
+different turn codes and wording for the same junction. This is a forward-driving personal
+tool, so we capture the **forward view only** and drop the reverse view *and* reverse
+mileage; the GPX line drives in either direction regardless. Sub-sections restart mileage
+at `0.0` (so `fwdMile` is per-segment cumulative) and some (e.g. spurs) are forward-only.
+Many rows have no turn code, so `direction` is nullable.
 
 ### 2. Coordinate parser
 
@@ -110,7 +119,7 @@ a GPX point needs coordinates, and the only rows with coordinates are GPS-fix ro
 - **trkpts** = the segment's GPS anchors in `fwdMile` order → the (straight-line, for now)
   track geometry.
 - **wpts** = those same anchors, each carrying `desc` = verbatim instruction `text`,
-  `cmt` = mileage (e.g. `"fwd 1.9 / rev 2.2"`).
+  `cmt` = mileage (e.g. `"mile 1.9"`).
 
 "A wpt for every notable feature" is deferred until we have coordinates for non-GPS rows or
 add an explicit flag — there is nothing to place a feature-without-coords *at* yet.
