@@ -1,16 +1,35 @@
+import { useState } from "react";
 import { useRouteStore } from "../store";
+import { runExtraction, extractPageViaApi } from "../lib/extractRun";
 
 export function UploadView() {
   const pages = useRouteStore((s) => s.pages);
   const addPages = useRouteStore((s) => s.addPages);
   const removePage = useRouteStore((s) => s.removePage);
+  const appendSegments = useRouteStore((s) => s.appendSegments);
   const setView = useRouteStore((s) => s.setView);
+
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [failed, setFailed] = useState<string[]>([]);
 
   function onFiles(files: FileList | null) {
     if (!files) return;
     addPages(
       Array.from(files).map((f) => ({ id: crypto.randomUUID(), name: f.name, url: URL.createObjectURL(f) })),
     );
+  }
+
+  async function onExtract() {
+    setFailed([]);
+    setProgress({ done: 0, total: pages.length });
+    await runExtraction(pages, {
+      extractPage: extractPageViaApi,
+      appendSegments,
+      onProgress: (done, total) => setProgress({ done, total }),
+      onPageError: (page) => setFailed((f) => [...f, page.name]),
+    });
+    setProgress(null);
+    setView("review");
   }
 
   return (
@@ -43,13 +62,31 @@ export function UploadView() {
         ))}
       </div>
 
-      <button
-        className="mt-6 px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-40"
-        disabled={pages.length === 0}
-        onClick={() => setView("review")}
-      >
-        Continue to review →
-      </button>
+      {progress && (
+        <p className="mt-4 text-sm text-gray-600">
+          Extracting page {Math.min(progress.done + 1, progress.total)} of {progress.total}…
+        </p>
+      )}
+      {failed.length > 0 && (
+        <p className="mt-2 text-sm text-red-600">Could not extract: {failed.join(", ")}</p>
+      )}
+
+      <div className="mt-6 flex items-center gap-3">
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-40"
+          disabled={pages.length === 0 || progress !== null}
+          onClick={onExtract}
+        >
+          {progress ? "Extracting…" : "Extract with AI"}
+        </button>
+        <button
+          className="px-4 py-2 border rounded disabled:opacity-40"
+          disabled={pages.length === 0 || progress !== null}
+          onClick={() => setView("review")}
+        >
+          Continue without extracting →
+        </button>
+      </div>
     </div>
   );
 }

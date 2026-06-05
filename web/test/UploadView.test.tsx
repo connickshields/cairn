@@ -19,10 +19,10 @@ describe("UploadView", () => {
     expect(useRouteStore.getState().pages[0].name).toBe("page1.jpg");
   });
 
-  it("continue button switches to the review view", () => {
+  it("the fallback continue button switches to the review view", () => {
     useRouteStore.getState().addPages([{ id: "p1", name: "a.jpg", url: "blob:1" }]);
     render(<UploadView />);
-    fireEvent.click(screen.getByRole("button", { name: /continue to review/i }));
+    fireEvent.click(screen.getByRole("button", { name: /continue without extracting/i }));
     expect(useRouteStore.getState().view).toBe("review");
   });
 });

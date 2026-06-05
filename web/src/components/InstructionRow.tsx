@@ -20,8 +20,22 @@ export function InstructionRow({
   const isAnchor = parseGps(row.gpsRaw).status === "ok";
 
   return (
-    <tr className={isAnchor ? "bg-amber-50" : ""}>
+    <tr className={`${isAnchor ? "bg-amber-50" : ""} ${row.flagged ? "border-l-4 border-amber-500" : ""}`}>
       <td className="px-1">
+        {row.flagged && (
+          <span className="inline-flex items-center gap-1">
+            <span aria-label="low confidence" title={row.note || "Low confidence"}>
+              ⚠
+            </span>
+            <button
+              aria-label="dismiss flag"
+              className="text-gray-400"
+              onClick={() => updateRow(segId, row.id, { flagged: false })}
+            >
+              ✓
+            </button>
+          </span>
+        )}
         <input
           aria-label="Mile"
           className="border rounded px-1 py-0.5 text-sm w-12"

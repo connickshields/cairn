@@ -39,4 +39,14 @@ describe("InstructionRow", () => {
     render(<InstructionRow segId={segId} row={row} />);
     expect(screen.getByText(/can't read/i)).toBeInTheDocument();
   });
+
+  it("marks a flagged row and dismisses the flag", () => {
+    const { segId } = seedRow();
+    const base = useRouteStore.getState().segments[0].instructions[0];
+    const row = { ...base, flagged: true, note: "smudged mileage" };
+    render(<InstructionRow segId={segId} row={row} />);
+    expect(screen.getByLabelText(/low confidence/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /dismiss flag/i }));
+    expect(useRouteStore.getState().segments[0].instructions[0].flagged).toBe(false);
+  });
 });
