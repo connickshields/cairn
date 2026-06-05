@@ -270,13 +270,13 @@ git commit -m "refactor(api): import data model from @cairn/shared"
     "@types/leaflet": "^1.9.12",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.0",
+    "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.20",
     "jsdom": "^25.0.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.0",
-    "vite": "^5.4.0",
+    "vite": "^7.0.0",
     "vitest": "^4.0.0"
   }
 }
@@ -304,7 +304,7 @@ git commit -m "refactor(api): import data model from @cairn/shared"
 - [ ] **Step 3: Create `web/vite.config.ts`** (proxy `/api` → wrangler dev on 8787)
 
 ```ts
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
