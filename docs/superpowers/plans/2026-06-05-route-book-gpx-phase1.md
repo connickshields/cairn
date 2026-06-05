@@ -406,7 +406,7 @@ const route: Route = {
     {
       name: "Main",
       instructions: [
-        { fwdMile: 0.0, direction: null, text: "Start & go <north>.", gps: null },
+        { fwdMile: 0.0, direction: null, text: "Start; go north.", gps: null },
         {
           fwdMile: 1.8,
           direction: "BL",
@@ -416,7 +416,7 @@ const route: Route = {
         {
           fwdMile: 2.8,
           direction: "SO",
-          text: "Track on left ends.",
+          text: "Track on left ends & <done>.",
           gps: { raw: "N38°28.49' W120°13.26'", lat: 38.474833, lon: -120.221 },
         },
       ],
@@ -453,8 +453,8 @@ describe("buildGpx", () => {
     expect(gpx).toContain("<cmt>mile 1.8</cmt>");
   });
 
-  it("escapes XML special characters in text", () => {
-    expect(gpx).toContain("Start &amp; go &lt;north&gt;.");
+  it("escapes XML special characters in an emitted waypoint's text", () => {
+    expect(gpx).toContain("Track on left ends &amp; &lt;done&gt;.");
   });
 });
 ```
