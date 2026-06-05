@@ -1,3 +1,8 @@
+import { useRouteStore } from "./store";
+import { UploadView } from "./components/UploadView";
+import { ReviewView } from "./components/ReviewView";
+
 export default function App() {
-  return <h1 className="p-4 text-xl font-semibold">cairn</h1>;
+  const view = useRouteStore((s) => s.view);
+  return view === "upload" ? <UploadView /> : <ReviewView />;
 }
