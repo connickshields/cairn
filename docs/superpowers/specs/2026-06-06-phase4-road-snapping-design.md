@@ -36,9 +36,11 @@ endpoint (not folded into `/api/gpx`).
 - **Request** (`SnapRequest`): `{ segments: [{ anchors: {lat,lon}[], roadNames: string[] }] }`
   — one entry per route segment, with that segment's ordered anchors and the road
   designations mentioned in its instructions.
-- **Response** (`SnapResponse`): `{ segments: [{ track: {lat,lon}[], legs: { snapped: boolean }[] }] }`
-  — per segment, the snapped polyline and a per-leg flag (a leg is the span between two
-  consecutive anchors). `legs.length === anchors.length - 1`.
+- **Response** (`SnapResponse`): `{ segments: [{ legs: { snapped: boolean, points: {lat,lon}[] }[] }] }`
+  — per segment, one entry per leg (the span between two consecutive anchors), each with its
+  own geometry and a snapped/fallback flag. `legs.length === max(anchors.length - 1, 0)`.
+  The full segment track is the de-duplicated concatenation of the legs' points; the map can
+  style each leg independently (dashed for `snapped: false`).
 - The handler validates the body, computes the combined bbox, fetches Overpass once for the
   whole route, builds one graph, and snaps each segment against it. The Overpass `fetch` is
   injected so the handler/core is testable without network.
