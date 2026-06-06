@@ -1,5 +1,8 @@
 {
   "name": "cairn-api",
   "main": "src/index.ts",
-  "compatibility_date": "2025-01-01"
+  "compatibility_date": "2025-01-01",
+  // @anthropic-ai/sdk imports Node built-ins (node:stream, node:fs/promises, …);
+  // nodejs_compat lets the Workers runtime resolve them.
+  "compatibility_flags": ["nodejs_compat"]
 }
