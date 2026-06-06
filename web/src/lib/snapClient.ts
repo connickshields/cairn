@@ -1,6 +1,7 @@
 import { SnapResponse, extractRoadNames, type SnapRequest } from "@cairn/shared";
 import type { EditableSegment, SegmentSnap } from "../store";
 import { parseGps } from "./anchors";
+import { apiFetch } from "./apiClient";
 
 export function buildSnapRequest(segments: EditableSegment[]): SnapRequest {
   return {
@@ -17,7 +18,7 @@ export function buildSnapRequest(segments: EditableSegment[]): SnapRequest {
 }
 
 export async function requestSnap(req: SnapRequest): Promise<SnapResponse> {
-  const res = await fetch("/api/snap", {
+  const res = await apiFetch("/api/snap", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(req),

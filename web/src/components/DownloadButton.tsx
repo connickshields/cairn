@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouteStore } from "../store";
 import { toRoutePayload } from "../lib/serialize";
+import { apiFetch } from "../lib/apiClient";
 
 export function DownloadButton() {
   const name = useRouteStore((s) => s.name);
@@ -9,7 +10,7 @@ export function DownloadButton() {
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/gpx", {
+      const res = await apiFetch("/api/gpx", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toRoutePayload({ name, segments }, snapped)),

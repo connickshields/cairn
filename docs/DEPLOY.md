@@ -64,6 +64,13 @@ npx wrangler secret put ANTHROPIC_API_KEY
 # paste the key at the prompt (input hidden)
 ```
 
+Set an **access password** so randos who load the public page can't spend your Anthropic
+credit (the API rejects calls without it; the SPA prompts you for it once):
+
+```bash
+npx wrangler secret put CAIRN_API_PASSWORD     # choose any passphrase
+```
+
 Optional — pin a specific Overpass mirror (defaults to `https://overpass-api.de/api/interpreter`):
 
 ```bash
@@ -71,6 +78,12 @@ npx wrangler secret put OVERPASS_URL    # e.g. https://overpass.kumi.systems/api
 ```
 
 > Secrets live encrypted on the Worker and are never in git. `api/.dev.vars` is local-only.
+>
+> **How the gate works:** if `CAIRN_API_PASSWORD` is set, every `/api/*` call must send
+> HTTP Basic auth whose password matches it (username ignored). The web app prompts for the
+> password on first use and stores it in your browser; a wrong password (401) clears it and
+> re-prompts. If the secret is unset, the API is open (fine for local dev). From a terminal:
+> `curl -u :YOUR_PASSWORD https://cairn.connick.me/api/...`.
 
 ---
 

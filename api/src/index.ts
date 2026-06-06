@@ -15,11 +15,33 @@ import { ALLOWED_MEDIA, arrayBufferToBase64, extractPage, type MediaType } from 
 interface Env {
   ANTHROPIC_API_KEY: string;
   OVERPASS_URL?: string;
+  CAIRN_API_PASSWORD?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
 
 app.get("/", (c) => c.text("cairn api"));
+
+// Password gate for the API. Off when CAIRN_API_PASSWORD is unset; otherwise requires
+// HTTP Basic auth whose password matches the secret (the username is ignored).
+app.use("/api/*", async (c, next) => {
+  const required = c.env?.CAIRN_API_PASSWORD;
+  if (!required) return next();
+  const m = /^Basic\s+(.+)$/i.exec(c.req.header("authorization") ?? "");
+  let ok = false;
+  if (m) {
+    try {
+      const decoded = atob(m[1]);
+      ok = decoded.slice(decoded.indexOf(":") + 1) === required;
+    } catch {
+      ok = false;
+    }
+  }
+  if (!ok) {
+    return c.json({ error: "Unauthorized" }, 401, { "WWW-Authenticate": 'Basic realm="cairn"' });
+  }
+  return next();
+});
 
 app.post("/api/gpx", async (c) => {
   const body = await c.req.json().catch(() => null);

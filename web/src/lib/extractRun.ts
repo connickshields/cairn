@@ -2,6 +2,7 @@ import { ExtractedPage } from "@cairn/shared";
 import type { EditableSegment, PageImage } from "../store";
 import { extractedPageToSegments } from "./extractMap";
 import { downscaleImage } from "./image";
+import { apiFetch } from "./apiClient";
 
 export interface ExtractDeps {
   extractPage: (page: PageImage) => Promise<ExtractedPage>;
@@ -26,7 +27,7 @@ export async function runExtraction(pages: PageImage[], deps: ExtractDeps): Prom
 // Real dependency for runExtraction: downscale the page image and POST it.
 export async function extractPageViaApi(page: PageImage): Promise<ExtractedPage> {
   const blob = await downscaleImage(page.url);
-  const res = await fetch("/api/extract", {
+  const res = await apiFetch("/api/extract", {
     method: "POST",
     headers: { "Content-Type": blob.type },
     body: blob,
