@@ -943,14 +943,14 @@ export function UploadView() {
 }
 ```
 
-- [ ] **Step 6: Update the existing UploadView test** — `web/test/UploadView.test.tsx` currently clicks `/continue to review/i`. That button is still present (the fallback). Confirm it still passes as written; no change needed. Run: `npm test --workspace web -- UploadView`. Expected: PASS (2 tests).
+- [ ] **Step 6: Update the existing UploadView test** — the fallback button is renamed to "Continue without extracting →", so `web/test/UploadView.test.tsx`'s selector `/continue to review/i` no longer matches. Update that test's click to `/continue without extracting/i` (it still asserts the fallback button switches to the review view). Run: `npm test --workspace web -- UploadView`. Expected: PASS (2 tests).
 
 - [ ] **Step 7: Run full web suite + typecheck** — Run: `npm test --workspace web` then `npm run typecheck --workspace web`. Expected: all PASS; typecheck exit 0.
 
 - [ ] **Step 8: Commit**
 
 ```bash
-git add web/src/components/UploadView.tsx web/src/components/InstructionRow.tsx web/test/InstructionRow.test.tsx
+git add web/src/components/UploadView.tsx web/src/components/InstructionRow.tsx web/test/InstructionRow.test.tsx web/test/UploadView.test.tsx
 git commit -m "feat(web): Extract with AI button + flagged-row marker"
 ```
 
