@@ -94,4 +94,21 @@ describe("routeStore", () => {
     expect(row.flagged).toBe(false);
     expect(row.note).toBe("");
   });
+
+  it("stores snapped geometry and the enabled flag", () => {
+    const st = useRouteStore.getState();
+    st.setSnapEnabled(true);
+    st.setSnapped({ "seg-1": { legs: [{ snapped: true, points: [{ lat: 1, lon: 2 }] }] } });
+    expect(useRouteStore.getState().snapEnabled).toBe(true);
+    expect(useRouteStore.getState().snapped["seg-1"].legs[0].snapped).toBe(true);
+  });
+
+  it("clears snap when the route is edited", () => {
+    const st = useRouteStore.getState();
+    st.setSnapEnabled(true);
+    st.setSnapped({ "seg-1": { legs: [] } });
+    st.addSegment();
+    expect(useRouteStore.getState().snapEnabled).toBe(false);
+    expect(useRouteStore.getState().snapped).toEqual({});
+  });
 });
