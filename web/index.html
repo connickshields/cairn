@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Send a Referer with cross-origin (tile) requests — OSM's tile servers reject
+         requests without one (HTTPS→HTTPS sends the full URL; nothing on a downgrade). -->
+    <meta name="referrer" content="no-referrer-when-downgrade" />
     <title>cairn</title>
   </head>
   <body>
