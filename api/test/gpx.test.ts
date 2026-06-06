@@ -59,4 +59,34 @@ describe("buildGpx", () => {
   it("escapes XML special characters in an emitted waypoint's text", () => {
     expect(gpx).toContain("Track on left ends &amp; &lt;done&gt;.");
   });
+
+  it("uses snappedTrack for trkpts when a segment has it", () => {
+    const snappedRoute: Route = {
+      name: "Snapped",
+      segments: [
+        {
+          name: "Main",
+          snappedTrack: [
+            { lat: 38.1, lon: -120.1 },
+            { lat: 38.2, lon: -120.2 },
+            { lat: 38.3, lon: -120.3 },
+          ],
+          instructions: [
+            {
+              fwdMile: 1.0,
+              direction: "SO",
+              text: "anchor",
+              gps: { raw: "N38°06.00' W120°06.00'", lat: 38.1, lon: -120.1 },
+            },
+          ],
+        },
+      ],
+    };
+    const gpx = buildGpx(snappedRoute);
+    // three trkpts from the snapped track, not the single gps anchor
+    expect((gpx.match(/<trkpt /g) ?? [])).toHaveLength(3);
+    expect(gpx).toContain('<trkpt lat="38.200000" lon="-120.200000">');
+    // waypoints still come from the gps anchor
+    expect((gpx.match(/<wpt /g) ?? [])).toHaveLength(1);
+  });
 });

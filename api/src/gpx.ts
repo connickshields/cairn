@@ -34,9 +34,11 @@ function buildWaypoint(i: Instruction): string {
 }
 
 function buildTrack(segment: RouteSegment): string {
-  const points = segment.instructions
-    .filter((i) => i.gps !== null)
-    .map((i) => `      <trkpt lat="${fmt(i.gps!.lat)}" lon="${fmt(i.gps!.lon)}"></trkpt>`);
+  const source =
+    segment.snappedTrack && segment.snappedTrack.length > 0
+      ? segment.snappedTrack
+      : segment.instructions.filter((i) => i.gps !== null).map((i) => ({ lat: i.gps!.lat, lon: i.gps!.lon }));
+  const points = source.map((p) => `      <trkpt lat="${fmt(p.lat)}" lon="${fmt(p.lon)}"></trkpt>`);
   return [
     "  <trk>",
     `    <name>${esc(segment.name)}</name>`,
