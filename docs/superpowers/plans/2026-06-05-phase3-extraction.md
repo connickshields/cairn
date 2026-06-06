@@ -173,12 +173,25 @@ ANTHROPIC_API_KEY=
 .dev.vars
 ```
 
-- [ ] **Step 4: Sanity build** — Run: `npm run typecheck --workspace api`. Expected: exit 0 (no source changes yet).
+- [ ] **Step 4: Enable `nodejs_compat`** — the SDK imports Node built-ins (`node:stream`, `node:fs/promises`), so the Workers runtime won't start without the flag. Add it to `api/wrangler.jsonc` so the file reads:
 
-- [ ] **Step 5: Commit**
+```jsonc
+{
+  "name": "cairn-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"]
+}
+```
+
+(Unit tests run in Node and won't catch this — only a live `wrangler dev` boot does, in the Task 10 gate.)
+
+- [ ] **Step 5: Sanity build** — Run: `npm run typecheck --workspace api`. Expected: exit 0 (no source changes yet).
+
+- [ ] **Step 6: Commit**
 
 ```bash
-git add api/package.json api/.dev.vars.example .gitignore package-lock.json
+git add api/package.json api/.dev.vars.example api/wrangler.jsonc .gitignore package-lock.json
 git commit -m "chore(api): add @anthropic-ai/sdk and ANTHROPIC_API_KEY plumbing"
 ```
 
