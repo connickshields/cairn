@@ -73,7 +73,16 @@ app.post("/api/snap", async (c) => {
   const url = c.env.OVERPASS_URL ?? "https://overpass-api.de/api/interpreter";
   let json: OverpassJson;
   try {
-    const res = await fetch(url, { method: "POST", body: query, headers: { "Content-Type": "text/plain" } });
+    const res = await fetch(url, {
+      method: "POST",
+      body: "data=" + encodeURIComponent(query),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        // Overpass throttles/blocks requests without a User-Agent — set one.
+        "User-Agent": "cairn/1.0 (overland route-book to GPX converter)",
+        Accept: "application/json",
+      },
+    });
     if (!res.ok) throw new Error(`Overpass ${res.status}`);
     json = (await res.json()) as OverpassJson;
   } catch (err) {
