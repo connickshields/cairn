@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { parseDmsCoordinate } from "./coords";
+import { GeoPoint } from "./geo";
 
 export const Direction = z.enum(["SO", "BL", "BR", "TL", "TR", "UT"]);
 export type Direction = z.infer<typeof Direction>;
@@ -37,6 +38,7 @@ export type Instruction = z.infer<typeof Instruction>;
 export const RouteSegment = z.object({
   name: z.string(),
   instructions: z.array(Instruction),
+  snappedTrack: z.array(GeoPoint).optional(),
 });
 export type RouteSegment = z.infer<typeof RouteSegment>;
 
