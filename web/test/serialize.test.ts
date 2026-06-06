@@ -42,4 +42,14 @@ describe("toRoutePayload", () => {
     const bad = { ...state, segments: [{ ...state.segments[0], instructions: [{ id: "x", fwdMile: "abc", direction: "", text: "t", gpsRaw: "" }] }] } as unknown as RouteState;
     expect(toRoutePayload(bad).segments[0].instructions[0].fwdMile).toBeNull();
   });
+
+  it("includes snappedTrack per segment when snap data is provided", () => {
+    const snapped = { s1: { legs: [{ snapped: true, points: [{ lat: 1, lon: 2 }, { lat: 3, lon: 4 }] }] } };
+    const payload = toRoutePayload(state, snapped);
+    expect(payload.segments[0].snappedTrack).toEqual([{ lat: 1, lon: 2 }, { lat: 3, lon: 4 }]);
+  });
+
+  it("omits snappedTrack when there is no snap data", () => {
+    expect(toRoutePayload(state).segments[0].snappedTrack).toBeUndefined();
+  });
 });

@@ -4,12 +4,33 @@ import { RouteTable } from "./RouteTable";
 import { MapPanel } from "./MapPanel";
 import { PagesPanel } from "./PagesPanel";
 import { DownloadButton } from "./DownloadButton";
+import { buildSnapRequest, requestSnap, snapResponseToStore } from "../lib/snapClient";
 
 export function ReviewView() {
   const name = useRouteStore((s) => s.name);
   const setRouteName = useRouteStore((s) => s.setRouteName);
   const setView = useRouteStore((s) => s.setView);
+  const segments = useRouteStore((s) => s.segments);
+  const snapEnabled = useRouteStore((s) => s.snapEnabled);
+  const setSnapEnabled = useRouteStore((s) => s.setSnapEnabled);
+  const setSnapped = useRouteStore((s) => s.setSnapped);
+  const clearSnap = useRouteStore((s) => s.clearSnap);
   const [tab, setTab] = useState<"map" | "pages">("map");
+
+  async function onToggleSnap(checked: boolean) {
+    if (!checked) {
+      clearSnap();
+      return;
+    }
+    try {
+      const resp = await requestSnap(buildSnapRequest(segments));
+      setSnapped(snapResponseToStore(segments, resp));
+      setSnapEnabled(true);
+    } catch {
+      clearSnap();
+      alert("Couldn't snap to roads (Overpass unavailable); showing straight lines.");
+    }
+  }
 
   return (
     <div className="flex flex-col h-screen">
@@ -24,7 +45,11 @@ export function ReviewView() {
           value={name}
           onChange={(e) => setRouteName(e.target.value)}
         />
-        <div className="ml-auto">
+        <label className="ml-auto flex items-center gap-1 text-sm text-gray-700">
+          <input type="checkbox" checked={snapEnabled} onChange={(e) => onToggleSnap(e.target.checked)} />
+          Snap to roads
+        </label>
+        <div>
           <DownloadButton />
         </div>
       </header>

@@ -5,13 +5,14 @@ import { toRoutePayload } from "../lib/serialize";
 export function DownloadButton() {
   const name = useRouteStore((s) => s.name);
   const segments = useRouteStore((s) => s.segments);
+  const snapped = useRouteStore((s) => s.snapped);
 
   const mutation = useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/gpx", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(toRoutePayload({ name, segments })),
+        body: JSON.stringify(toRoutePayload({ name, segments }, snapped)),
       });
       if (!res.ok) throw new Error(`Server returned ${res.status}`);
       return res.blob();
