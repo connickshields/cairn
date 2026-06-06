@@ -1,8 +1,19 @@
 import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap } from "react-leaflet";
-import { LatLngBounds } from "leaflet";
+import { LatLngBounds, divIcon } from "leaflet";
 import { useRouteStore } from "../store";
 import { deriveAnchors } from "../lib/anchors";
+
+// Leaflet's default pin icon resolves its PNGs relative to a path that Vite's bundler
+// breaks, so each marker renders as a broken-image box showing its alt text. A small
+// CSS-only divIcon avoids the asset entirely and reads far better when waypoints cluster.
+const waypointIcon = divIcon({
+  className: "",
+  html: '<div class="h-3 w-3 rounded-full border-2 border-white bg-blue-600 shadow"></div>',
+  iconSize: [12, 12],
+  iconAnchor: [6, 6],
+  popupAnchor: [0, -6],
+});
 
 function FitBounds({ points }: { points: [number, number][] }) {
   const map = useMap();
@@ -42,7 +53,7 @@ export function MapPanel() {
                 ))
               : straight.length > 1 && <Polyline positions={straight} />}
             {seg.points.map((p) => (
-              <Marker key={p.id} position={[p.lat, p.lon]}>
+              <Marker key={p.id} position={[p.lat, p.lon]} icon={waypointIcon}>
                 <Popup>
                   <strong>mile {p.fwdMile || "?"}</strong>
                   <br />
