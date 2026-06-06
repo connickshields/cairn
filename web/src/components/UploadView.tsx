@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useRouteStore } from "../store";
 import { runExtraction, extractPageViaApi } from "../lib/extractRun";
+import { buildSnapRequest, requestSnap, snapResponseToStore } from "../lib/snapClient";
+import { Spinner } from "./Spinner";
+
+type Status =
+  | { kind: "idle" }
+  | { kind: "extracting"; done: number; total: number }
+  | { kind: "snapping" };
 
 export function UploadView() {
   const pages = useRouteStore((s) => s.pages);
@@ -8,9 +15,13 @@ export function UploadView() {
   const removePage = useRouteStore((s) => s.removePage);
   const appendSegments = useRouteStore((s) => s.appendSegments);
   const setView = useRouteStore((s) => s.setView);
+  const setSnapped = useRouteStore((s) => s.setSnapped);
+  const setSnapEnabled = useRouteStore((s) => s.setSnapEnabled);
+  const clearSnap = useRouteStore((s) => s.clearSnap);
 
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [failed, setFailed] = useState<string[]>([]);
+  const busy = status.kind !== "idle";
 
   function onFiles(files: FileList | null) {
     if (!files) return;
@@ -19,16 +30,34 @@ export function UploadView() {
     );
   }
 
+  // Snap to roads automatically once extraction finishes. Reads the freshly
+  // appended segments from the store. Failures fall back to straight lines
+  // silently — the user can retry from the review's "Snap to roads" toggle.
+  async function autoSnap() {
+    const segments = useRouteStore.getState().segments;
+    const req = buildSnapRequest(segments);
+    if (!req.segments.some((s) => s.anchors.length > 0)) return;
+    setStatus({ kind: "snapping" });
+    try {
+      const resp = await requestSnap(req);
+      setSnapped(snapResponseToStore(segments, resp));
+      setSnapEnabled(true);
+    } catch {
+      clearSnap();
+    }
+  }
+
   async function onExtract() {
     setFailed([]);
-    setProgress({ done: 0, total: pages.length });
+    setStatus({ kind: "extracting", done: 0, total: pages.length });
     await runExtraction(pages, {
       extractPage: extractPageViaApi,
       appendSegments,
-      onProgress: (done, total) => setProgress({ done, total }),
+      onProgress: (done, total) => setStatus({ kind: "extracting", done, total }),
       onPageError: (page) => setFailed((f) => [...f, page.name]),
     });
-    setProgress(null);
+    await autoSnap();
+    setStatus({ kind: "idle" });
     setView("review");
   }
 
@@ -62,9 +91,16 @@ export function UploadView() {
         ))}
       </div>
 
-      {progress && (
+      {status.kind === "extracting" && (
         <p className="mt-4 text-sm text-gray-600">
-          Extracting page {Math.min(progress.done + 1, progress.total)} of {progress.total}…
+          <Spinner
+            label={`Reading page ${Math.min(status.done + 1, status.total)} of ${status.total}…`}
+          />
+        </p>
+      )}
+      {status.kind === "snapping" && (
+        <p className="mt-4 text-sm text-gray-600">
+          <Spinner label="Snapping route to roads…" />
         </p>
       )}
       {failed.length > 0 && (
@@ -74,14 +110,14 @@ export function UploadView() {
       <div className="mt-6 flex items-center gap-3">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-40"
-          disabled={pages.length === 0 || progress !== null}
+          disabled={pages.length === 0 || busy}
           onClick={onExtract}
         >
-          {progress ? "Extracting…" : "Extract with AI"}
+          {busy ? <Spinner label="Processing…" ring="border-blue-300 border-t-white" /> : "Extract with AI"}
         </button>
         <button
           className="px-4 py-2 border rounded disabled:opacity-40"
-          disabled={pages.length === 0 || progress !== null}
+          disabled={pages.length === 0 || busy}
           onClick={() => setView("review")}
         >
           Continue without extracting →
