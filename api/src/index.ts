@@ -11,6 +11,7 @@ import {
 } from "@cairn/shared";
 import { buildGpx } from "./gpx";
 import { ALLOWED_MEDIA, arrayBufferToBase64, extractPage, type MediaType } from "./extract";
+import { fetchOverpass } from "./overpass";
 
 interface Env {
   ANTHROPIC_API_KEY: string;
@@ -92,21 +93,9 @@ app.post("/api/snap", async (c) => {
     return c.json({ segments: parsed.data.segments.map(() => ({ legs: [] })) }, 200);
   }
   const query = buildOverpassQuery(computeBbox(anchors, 300));
-  const url = c.env.OVERPASS_URL ?? "https://overpass-api.de/api/interpreter";
   let json: OverpassJson;
   try {
-    const res = await fetch(url, {
-      method: "POST",
-      body: "data=" + encodeURIComponent(query),
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        // Overpass throttles/blocks requests without a User-Agent — set one.
-        "User-Agent": "cairn/1.0 (overland route-book to GPX converter)",
-        Accept: "application/json",
-      },
-    });
-    if (!res.ok) throw new Error(`Overpass ${res.status}`);
-    json = (await res.json()) as OverpassJson;
+    json = await fetchOverpass(query, c.env.OVERPASS_URL);
   } catch (err) {
     return c.json({ error: "Overpass unavailable", detail: (err as Error).message }, 502);
   }

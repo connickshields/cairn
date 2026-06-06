@@ -71,7 +71,9 @@ credit (the API rejects calls without it; the SPA prompts you for it once):
 npx wrangler secret put CAIRN_API_PASSWORD     # choose any passphrase
 ```
 
-Optional — pin a specific Overpass mirror (defaults to `https://overpass-api.de/api/interpreter`):
+Optional — the snap endpoint tries several public Overpass mirrors in turn (overpass-api.de
+sits behind Cloudflare and can return 521 from a Worker, so non-CF mirrors are tried first).
+Set `OVERPASS_URL` to force a specific endpoint to be tried first:
 
 ```bash
 npx wrangler secret put OVERPASS_URL    # e.g. https://overpass.kumi.systems/api/interpreter
